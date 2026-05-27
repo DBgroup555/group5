@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>會員註冊 - 家教媒合平台</title>
+  <style>
+    :root{--bg:#f6efe7;--card:#fffaf4;--line:#e5d7c8;--text:#5b4636;--primary:#c9a27e;--soft:#f1e5d8}
+    *{box-sizing:border-box}
+    body{margin:0; font-family:system-ui,-apple-system,sans-serif; background:var(--bg); display:flex; justify-content:center; align-items:center; min-height:100vh; padding:20px;}
+    .auth-card{background:var(--card); border:1px solid var(--line); border-radius:20px; padding:30px; width:100%; max-width:450px; box-shadow:0 10px 30px rgba(90,60,30,.06)}
+    h2{margin:0 0 20px; text-align:center; color:var(--text)}
+    .field{display:grid; gap:6px; margin-bottom:16px; font-size:14px; color:var(--text)}
+    input, select, textarea{width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:12px; background:#fff; font:inherit}
+    button{width:100%; background:var(--primary); color:#fff; border:none; padding:12px; border-radius:12px; font-weight:bold; cursor:pointer; font-size:16px; margin-top:10px}
+    button:hover{opacity:0.9}
+    .tutor-only{display:none;} /* 預設隱藏老師專用畫面 */
+    .switch-link{text-align:center; margin-top:16px; font-size:14px; color:#8b6f58}
+    .switch-link a{color:var(--primary); text-decoration:none; font-weight:bold}
+  </style>
+</head>
+<body>
+
+  <div class="auth-card">
+    <h2>加入家教平台</h2>
+    <form action="api/auth_process.php?action=register" method="POST">
+      
+      <div class="field">
+        <label>我想成為...</label>
+        <select name="role" id="roleSelect" onchange="toggleRoleFields()" required>
+          <option value="student">學生 / 家長（尋找老師）</option>
+          <option value="tutor">家教老師（提供教學）</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>電子信箱 (登入帳號)</label>
+        <input type="email" name="email" required placeholder="example@mail.com">
+      </div>
+
+      <div class="field">
+        <label>設定密碼</label>
+        <input type="password" name="password" required placeholder="請輸入密碼">
+      </div>
+
+      <div class="field">
+        <label>真實姓名 / 暱稱</label>
+        <input type="text" name="name" required placeholder="如何稱呼您">
+      </div>
+
+      <div class="field">
+        <label>聯絡電話</label>
+        <input type="tel" name="phone" placeholder="0912345678">
+      </div>
+
+      <div class="field">
+        <label>性別</label>
+        <select name="gender">
+          <option value="M">男</option>
+          <option value="F">女</option>
+          <option value="Other">其他 / 不公開</option>
+        </select>
+      </div>
+
+      <div class="field tutor-only" id="tutorFields">
+        <label>教學履歷 / 自我介紹 (老師專屬)</label>
+        <textarea name="bio" rows="4" placeholder="請填寫您的學經歷、擅長科目、教學理念等，這會公開在您的師資精美履歷上。"></textarea>
+      </div>
+
+      <button type="submit">註冊帳號</button>
+      
+      <div class="switch-link">
+        已經有帳號了？ <a href="login.php">立即登入</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // 依據選擇的身分，動態切換畫面欄位
+    function toggleRoleFields() {
+        const role = document.getElementById('roleSelect').value;
+        const tutorFields = document.getElementById('tutorFields');
+        
+        if (role === 'tutor') {
+            tutorFields.style.display = 'grid'; // 顯示老師專有欄位
+            tutorFields.querySelector('textarea').required = true;
+        } else {
+            tutorFields.style.display = 'none'; // 隱藏
+            tutorFields.querySelector('textarea').required = false;
+        }
+    }
+  </script>
+</body>
+</html>
