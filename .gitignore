@@ -1,0 +1,12 @@
+.env
+config/config.secret.php
+
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.swp
+
+/uploads/*
+!/uploads/.gitkeep
