@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>會員登入 - 家教媒合平台</title>
+  <title>帳號登入</title>
   <style>
     :root{--bg:#f6efe7;--card:#fffaf4;--line:#e5d7c8;--text:#5b4636;--primary:#c9a27e}
     *{box-sizing:border-box}
@@ -21,12 +21,12 @@
 <body>
 
   <div class="auth-card">
-    <h2>歡迎回來</h2>
+    <h2>登入</h2>
     <form action="api/auth_process.php?action=login" method="POST">
       
       <div class="field">
         <label>電子信箱</label>
-        <input type="email" name="email" required placeholder="請輸入註冊的 Email">
+        <input type="email" name="email" required placeholder="請輸入註冊的電子信箱">
       </div>
 
       <div class="field">
@@ -34,13 +34,13 @@
         <input type="password" name="password" required placeholder="請輸入密碼">
       </div>
 
-      <button type="submit">登入平台</button>
+      <button type="submit">登入</button>
 
-      <div class="admin-hint">
+      <!-- <div class="admin-hint">
         🔒 <strong>管理員測試入口：</strong><br>
         帳號：<code>admin@tutor.com</code><br>
         密碼：<code>admin1234</code>
-      </div>
+      </div> -->
       
       <div class="switch-link">
         還沒有帳號嗎？ <a href="register.php">立即註冊</a>

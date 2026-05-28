@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>會員註冊 - 家教媒合平台</title>
+  <title>帳號註冊</title>
   <style>
     :root{--bg:#f6efe7;--card:#fffaf4;--line:#e5d7c8;--text:#5b4636;--primary:#c9a27e;--soft:#f1e5d8}
     *{box-sizing:border-box}
@@ -22,14 +22,14 @@
 <body>
 
   <div class="auth-card">
-    <h2>加入家教平台</h2>
+    <h2>註冊</h2>
     <form action="api/auth_process.php?action=register" method="POST">
       
       <div class="field">
         <label>我想成為...</label>
         <select name="role" id="roleSelect" onchange="toggleRoleFields()" required>
           <option value="student">學生 / 家長（尋找老師）</option>
-          <option value="tutor">家教老師（提供教學）</option>
+          <option value="tutor">家教老師（尋找學生）</option>
         </select>
       </div>
 
@@ -39,17 +39,17 @@
       </div>
 
       <div class="field">
-        <label>設定密碼</label>
+        <label>密碼</label>
         <input type="password" name="password" required placeholder="請輸入密碼">
       </div>
 
       <div class="field">
-        <label>真實姓名 / 暱稱</label>
-        <input type="text" name="name" required placeholder="如何稱呼您">
+        <label>姓名</label>
+        <input type="text" name="name" required placeholder="請輸入姓名">
       </div>
 
       <div class="field">
-        <label>聯絡電話</label>
+        <label>電話號碼</label>
         <input type="tel" name="phone" placeholder="0912345678">
       </div>
 
@@ -63,11 +63,11 @@
       </div>
 
       <div class="field tutor-only" id="tutorFields">
-        <label>教學履歷 / 自我介紹 (老師專屬)</label>
-        <textarea name="bio" rows="4" placeholder="請填寫您的學經歷、擅長科目、教學理念等，這會公開在您的師資精美履歷上。"></textarea>
+        <label>教學履歷 / 自我介紹</label>
+        <textarea name="bio" rows="4" placeholder="請填寫您的學經歷、擅長科目、教學理念等，這會公開在您的師資履歷上。"></textarea>
       </div>
 
-      <button type="submit">註冊帳號</button>
+      <button type="submit">註冊</button>
       
       <div class="switch-link">
         已經有帳號了？ <a href="login.php">立即登入</a>
