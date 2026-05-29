@@ -5,6 +5,22 @@ $action = $_GET['action'] ?? '';
 
 // 處理註冊
 if ($action === 'register' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    $user_captcha = isset($_POST['captcha']) ? strtolower(trim($_POST['captcha'])) : '';
+
+    $correct_captcha = $_SESSION['captcha_auth'] ?? '';
+
+    if (empty($user_captcha) || $user_captcha !== $correct_captcha) {
+        unset($_SESSION['captcha_auth']);
+        
+        echo json_encode(['status' => 'error', 'message' => '驗證碼輸入錯誤或已過期，請重新輸入！']);
+        exit;
+    }
+    unset($_SESSION['captcha_auth']);
+
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
     $name = $_POST['name'] ?? '';

@@ -727,7 +727,7 @@ $applications = $apps_stmt->fetchAll();
       fetch('api/send_message.php', { method: 'POST', body: formData })
       .then(res => res.json())
       .then(data => {
-          if(data.status === 'success') {
+          if (data.status === 'success') {
               const box = document.getElementById('chatBox');
               if (box.innerText.includes('暫無對話紀錄')) box.innerHTML = '';
 
@@ -739,9 +739,26 @@ $applications = $apps_stmt->fetchAll();
                     </span>
                   </div>
               `;
-              document.getElementById('msgInput').value = '';
-              box.scrollTop = box.scrollHeight;
+              document.getElementById('msgInput').value = ''; 
+              box.scrollTop = box.scrollHeight; 
+          } 
+          // 🎯 情況 2：Groq 判定為 BLOCK 違規
+          else if (data.status === 'blocked') {
+              alert(data.message); 
+              document.getElementById('msgInput').value = ''; 
+          } 
+          else if (data.status === 'api_error') {
+              console.error('Groq API 報錯詳情:', data.response);
+              alert('系統安全模組異常，請聯絡管理員確認 API Key 狀態。');
+          } 
+          // 🎯 情況 4：其他欄位不全或資料庫炸掉
+          else {
+              alert('訊息發送失敗：' + (data.message || '未知錯誤'));
           }
+      })
+      .catch(err => {
+          console.error('網路連線失敗:', err);
+          alert('網路連線異常，請重新整理頁面。');
       });
     }
 

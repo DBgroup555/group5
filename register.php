@@ -67,6 +67,21 @@
         <textarea name="bio" rows="4" placeholder="請填寫您的學經歷、擅長科目、教學理念等，這會公開在您的師資履歷上。"></textarea>
       </div>
 
+      <!-- 機器人驗證 -->
+      <div class="field" style="display: grid; gap: 6px; font-size: 14px; margin-bottom: 12px;">
+        <label>驗證碼</label>
+        
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <input type="text" name="captcha" id="registerCaptcha" placeholder="請輸入圖中英數" required 
+                style="flex: 1; padding: 11px 12px; border: 1px solid var(--line); border-radius: 12px;" />
+          
+          <img src="api/captcha.php" id="captchaImg" alt="驗證碼" title="點擊更換一張" 
+              style="cursor: pointer; border-radius: 8px; border: 1px solid var(--line); height: 40px;" 
+              onclick="refreshCaptcha()" />
+        </div>
+        <small style="color: var(--muted); font-size: 12px;">看不清楚？點擊圖片可更換一張新驗證碼。</small>
+      </div>
+
       <button type="submit">註冊</button>
       
       <div class="switch-link">
@@ -76,7 +91,10 @@
   </div>
 
   <script>
-    // 依據選擇的身分，動態切換畫面欄位
+    function refreshCaptcha() {
+        document.getElementById('captchaImg').src = 'api/captcha.php?v=' + Date.now();
+    }
+
     function toggleRoleFields() {
         const role = document.getElementById('roleSelect').value;
         const tutorFields = document.getElementById('tutorFields');
