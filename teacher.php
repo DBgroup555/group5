@@ -19,7 +19,7 @@ $standard_cities = [
     '花蓮縣', '台東縣', '澎湖縣', '金門縣', '連江縣'
 ];
 
-$sql = "SELECT posts.*, users.name, users.gender FROM posts 
+$sql = "SELECT posts.*, users.name, users.gender, users.avatar_url FROM posts 
         JOIN users ON posts.user_id = users.id 
         WHERE users.role = 'student' AND users.status = 1";
 $params = [];
@@ -159,7 +159,14 @@ $my_post = $tutor_post_stmt->fetch() ?: ['subject'=>'其他', 'region'=>'台北'
     
     <div class="top-actions" style="align-items: center;">
       <span id="topNavWelcome">你好，<?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
-      <div class="avatar" onclick="openModal('profileModal')" title="帳號設定"></div>
+      <?php 
+        $avatar_path = !empty($my_profile['avatar_url']) ? 'uploads/'.$my_profile['avatar_url'] : '';
+        if(isset($_SESSION['user_avatar']) && !empty($_SESSION['user_avatar'])) {
+            $avatar_path = 'uploads/'.$_SESSION['user_avatar'];
+        }
+        $avatar_style = !empty($avatar_path) ? "background-image: url('".$avatar_path."'); background-size: cover; background-position: center;" : "";
+      ?>
+      <div class="avatar" id="navAvatar" onclick="openModal('profileModal')" style="<?php echo $avatar_style; ?>" title="帳號設定"></div>
     </div>
   </header>
 
@@ -243,7 +250,6 @@ $my_post = $tutor_post_stmt->fetch() ?: ['subject'=>'其他', 'region'=>'台北'
         </div>
 
         <button type="submit" class="primary" style="margin-top: 10px; padding: 12px; font-weight: bold;">套用</button>
-      </form>
     </form>
 
     <section class="content">
@@ -260,7 +266,17 @@ $my_post = $tutor_post_stmt->fetch() ?: ['subject'=>'其他', 'region'=>'台北'
             <article class="tutor-card card" style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
     
               <div style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 10px;">
-                <div class="avatar" style="width: 44px; height: 44px; flex-shrink: 0; background: linear-gradient(135deg,#9bc1d9,#d0e3f2);"></div>
+                <div class="avatar" style="width: 44px; height: 44px; flex-shrink: 0; 
+                  <?php 
+                    // 關鍵：這裡必須撈取該篇貼文主人的 avatar_url，而不是目前登入者的 session！
+                    if (!empty($post['avatar_url'])) {
+                        echo "background-image: url('uploads/" . htmlspecialchars($post['avatar_url']) . "'); background-size: cover; background-position: center;";
+                    } else {
+                        // 如果該用戶沒上傳過頭像，顯示系統預設的藍色漸層背景
+                        echo "background: linear-gradient(135deg,#9bc1d9,#d0e3f2);";
+                    }
+                  ?>">
+                </div>
                 <strong style="font-size: 16px; color: var(--text);"><?php echo htmlspecialchars($post['name']); ?></strong>
               </div>
 
@@ -309,62 +325,74 @@ $my_post = $tutor_post_stmt->fetch() ?: ['subject'=>'其他', 'region'=>'台北'
   </main>
 
   <div id="profileModal" class="modal">
-    <div class="modal-content" style="max-width: 400px; padding: 24px; position:relative;">
-      <span class="close-btn" onclick="closeModal('profileModal')">&times;</span>
-      <h2>帳號管理</h2>
-      <div style="margin-top:16px; display:grid; gap:14px;">
+  <div class="modal-content" style="max-width: 400px; padding: 24px; position:relative; display: flex; flex-direction: column; gap: 16px;">
+    
+    <span class="close-btn" style="position: absolute; top: 16px; right: 16px;" onclick="closeModal('profileModal')">&times;</span>
+    <h2>帳號管理</h2>
+    
+    <div style="text-align: center; background: rgba(91, 70, 54, 0.03); padding: 16px; border-radius: 16px; border: 1px dashed var(--line);">
+      <div id="tutorAvatarPreview" class="avatar" style="width: 80px; height: 80px; margin: 0 auto 10px auto; border: 2px solid var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); <?php echo $avatar_style; ?>"></div>
+      <label style="cursor: pointer; background: var(--soft); padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: bold; display: inline-block; color: var(--text);">
+        上傳照片
+        <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="uploadUserAvatar('tutorAvatarPreview')" />
+      </label>
+    </div>
+
+    <div class="field">
+      <label style="font-weight:bold; font-size:14px;">姓名</label>
+      <input type="text" id="editTutorName" value="<?php echo htmlspecialchars($my_profile['name']); ?>" placeholder="請輸入姓名" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line);" />
+    </div>
+    
+    <div class="field">
+      <label style="font-weight:bold; font-size:14px;">身分</label>
+      <input type="text" disabled value="家教老師 (Tutor)" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); background:#eee; color: var(--muted);" />
+    </div>
+    
+    <button type="button" class="primary" onclick="updateJustName()" style="padding:12px; font-weight:bold; width: 100%;">儲存</button>
+    
+    <div style="border-top: 1px dashed var(--line); margin: 4px 0;"></div>
+    <button type="button" style="background: #d9534f; color: #fff; border: none; padding: 12px; font-weight: bold; border-radius: 12px; cursor: pointer; width: 100%;" 
+            onclick="alert('已登出！'); location.href='logout.php';">
+      登出
+    </button>
+  </div>
+</div>
+
+<div id="profileModal2" class="modal">
+  <div class="modal-content" style="max-width: 550px; padding: 28px; position: relative; border-radius: 20px;">
+    
+    <span class="close-btn" style="position: absolute; top: 16px; right: 16px;" onclick="closeModal('profileModal2')">&times;</span>
+    <h3 style="margin: 0 0 20px 0; font-size: 18px; color: var(--text);">📝 編輯履歷</h3>
+    
+    <form id="tutorProfileForm" style="display: grid; gap: 16px;">
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;">
         <div class="field">
-          <label style="font-weight:bold; font-size:14px;">姓名</label>
-          <input type="text" id="editTutorName" value="<?php echo htmlspecialchars($my_profile['name']); ?>" placeholder="請輸入新姓名" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line);" />
+          <label style="font-weight: bold; font-size: 14px; color: var(--text); margin-bottom: 4px;">專長科目</label>
+          <input type="text" id="profileSubject" value="<?php echo htmlspecialchars($my_post['subject']); ?>" placeholder="例如：數學" required style="width:100%; padding:11px 12px; border-radius:12px; border:1px solid var(--line);" />
         </div>
+
         <div class="field">
-          <label style="font-weight:bold; font-size:14px;">身分</label>
-          <input type="text" disabled value="家教老師 (Tutor)" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--line); background:#eee;" />
+          <label style="font-weight: bold; font-size: 14px; color: var(--text); margin-bottom: 4px;">上課地區</label>
+          <input type="text" id="profileRegion" value="<?php echo htmlspecialchars($my_post['region']); ?>" placeholder="例如：台北市" required style="width:100%; padding:11px 12px; border-radius:12px; border:1px solid var(--line);" />
         </div>
-        
-        <button type="button" class="primary" onclick="updateJustName()" style="padding:10px; font-weight:bold;">儲存</button>
-        
-        <div style="margin-top: 5px; padding-top: 10px; border-top: 1px dashed var(--line);"></div>
-        <button type="button" style="background: #d9534f; color: #fff; border: none; padding:10px; font-weight: bold; border-radius:12px; cursor:pointer;" onclick="alert('已登出'); location.href='login.php';">登出</button>
       </div>
-    </div>
+
+      <div class="field">
+        <label style="font-weight: bold; font-size: 14px; color: var(--text); margin-bottom: 4px;">期望時薪</label>
+        <input type="text" id="profileBudget" value="<?php echo htmlspecialchars($my_post['budget']); ?>" placeholder="例如：NT$600+/hr" required style="width:100%; padding:11px 12px; border-radius:12px; border:1px solid var(--line);" />
+      </div>
+
+      <div class="field">
+        <label style="font-weight: bold; font-size: 14px; color: var(--text); margin-bottom: 4px;">簡介</label>
+        <textarea id="profileBio" rows="5" placeholder="填寫您的教學經驗與背景..." style="width:100%; padding:11px 12px; border-radius:12px; border:1px solid var(--line); background:#fff; line-height:1.5; font-family:inherit; resize:vertical;"><?php echo htmlspecialchars($my_profile['bio'] ?? ''); ?></textarea>
+      </div>
+
+      <button type="button" class="primary" onclick="updateJustResume()" style="padding: 12px; font-weight: bold; margin-top: 6px; border-radius: 12px;">
+        儲存
+      </button>
+    </form>
   </div>
-
-  <div id="profileModal2" class="modal">
-    <div class="modal-content" style="max-width: 550px; padding: 28px; position: relative; border-radius: 20px;">
-      <span class="close-btn" onclick="closeModal('profileModal2')">&times;</span>
-      
-      <h3 style="margin: 0 0 20px 0; font-size: 18px; color: var(--text);">📝 編輯履歷</h3>
-      
-      <form id="tutorProfileForm" style="display: grid; gap: 16px;">
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;">
-          <div class="field">
-            <label style="font-weight: bold; font-size: 14px; color: var(--text); margin-bottom: 4px;">專長科目</label>
-            <input type="text" id="profileSubject" value="<?php echo htmlspecialchars($my_post['subject']); ?>" placeholder="例如：數學" required style="width:100%; padding:11px 12px; border-radius:12px; border:1px solid var(--line);" />
-          </div>
-
-          <div class="field">
-            <label style="font-weight: bold; font-size: 14px; color: var(--text); margin-bottom: 4px;">上課地區</label>
-            <input type="text" id="profileRegion" value="<?php echo htmlspecialchars($my_post['region']); ?>" placeholder="例如：台北市" required style="width:100%; padding:11px 12px; border-radius:12px; border:1px solid var(--line);" />
-          </div>
-        </div>
-
-        <div class="field">
-          <label style="font-weight: bold; font-size: 14px; color: var(--text); margin-bottom: 4px;">期望時薪</label>
-          <input type="text" id="profileBudget" value="<?php echo htmlspecialchars($my_post['budget']); ?>" placeholder="例如：NT$600+/hr" required style="width:100%; padding:11px 12px; border-radius:12px; border:1px solid var(--line);" />
-        </div>
-
-        <div class="field">
-          <label style="font-weight: bold; font-size: 14px; color: var(--text); margin-bottom: 4px;">簡介</label>
-          <textarea id="profileBio" rows="5" placeholder="填寫您的教學經驗與背景..." style="width:100%; padding:11px 12px; border-radius:12px; border:1px solid var(--line); background:#fff; line-height:1.5; font-family:inherit; resize:vertical;"><?php echo htmlspecialchars($my_profile['bio'] ?? ''); ?></textarea>
-        </div>
-
-        <button type="button" class="primary" onclick="updateJustResume()" style="padding: 12px; font-weight: bold; margin-top: 6px; border-radius: 12px;">
-          儲存
-        </button>
-      </form>
-    </div>
-  </div>
+</div>
 
   <div id="detailModal" class="modal">
     <div class="modal-content" style="max-width: 500px;">
@@ -728,7 +756,45 @@ $my_post = $tutor_post_stmt->fetch() ?: ['subject'=>'其他', 'region'=>'台北'
               `;
           });
       });
-  }
+    }
+    function uploadUserAvatar(previewElementId) {
+      const fileInput = document.getElementById('avatarFileInput');
+      if (!fileInput.files || fileInput.files.length === 0) return;
+
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      fetch('api/upload_avatar.php', {
+          method: 'POST',
+          body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+          if (data.status === 'success') {
+              alert(data.message);
+            
+              const previewBox = document.getElementById(previewElementId);
+              if (previewBox) {
+                  previewBox.style.backgroundImage = `url('${data.avatar_url}')`;
+                  previewBox.style.backgroundSize = 'cover';
+                  previewBox.style.backgroundPosition = 'center';
+              }
+              const navBox = document.getElementById('navAvatar');
+              if (navBox) {
+                  navBox.style.backgroundImage = `url('${data.avatar_url}')`;
+                  navBox.style.backgroundSize = 'cover';
+                  navBox.style.backgroundPosition = 'center';
+              }
+          } else {
+              alert(data.message || '頭像上傳失敗，請重試。');
+          }
+      })
+      .catch(err => {
+          console.error(err);
+          alert('上傳發生連線錯誤！');
+      });
+    }
   </script>
 </body>
 </html>

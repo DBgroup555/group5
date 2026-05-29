@@ -174,7 +174,10 @@ $filtered_posts = $posts_stmt->fetchAll();
     <div class="modal-content">
       <span class="close-btn" onclick="closeModal('logoutModal')">&times;</span>
       <h3>帳號管理</h3>
-      <button style="width:100%; background:#d9534f; color:#fff; padding:12px; border:none; border-radius:10px; font-weight:bold;" onclick="alert('已登出'); location.href='login.php';">登出</button>
+      <button type="button" style="background: #d9534f; color: #fff; border: none; padding: 12px; font-weight: bold; border-radius: 12px; cursor: pointer; width: 100%;" 
+        onclick="alert('已登出！'); location.href='logout.php';">
+        登出
+      </button>
     </div>
   </div>
 

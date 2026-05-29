@@ -1,10 +1,17 @@
 <?php
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-// 徹底清除所有 Session 變數
+require_once 'config/db.php'; 
+
 $_SESSION = array();
+
+if (ini_get("session.use_cookies")) {
+    $params = session_get_cookie_params();
+    setcookie(session_name(), '', time() - 42000,
+        $params["path"], $params["domain"],
+        $params["secure"], $params["httponly"]
+    );
+}
+
 session_destroy();
 
-echo "<script>alert('已強制清空登入狀態！'); location.href='login.php';</script>";
-?>
+header("Location: login.php");
+exit;

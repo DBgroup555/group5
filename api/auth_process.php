@@ -70,6 +70,7 @@ if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['name'];
         $_SESSION['user_role'] = $user['role']; 
+        $_SESSION['user_avatar'] = $user['avatar_url'];
         
         if ($_SESSION['user_role'] === 'admin') {
             echo "<script>location.href='../admin.php';</script>";

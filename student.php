@@ -19,7 +19,7 @@ $standard_cities = [
     '花蓮縣', '台東縣', '澎湖縣', '金門縣', '連江縣'
 ];
 
-$sql = "SELECT posts.*, users.name, users.gender FROM posts 
+$sql = "SELECT posts.*, users.name, users.gender, users.avatar_url FROM posts 
         JOIN users ON posts.user_id = users.id 
         WHERE users.role = 'tutor' AND users.status = 1";
 $params = [];
@@ -93,7 +93,8 @@ $apps_stmt = $pdo->prepare("
     SELECT 
         app.id AS app_id, app.status, app.created_at,
         p.title AS post_title,
-        u.id AS tutor_id, u.name AS tutor_name, u.gender AS tutor_gender, u.bio AS tutor_bio
+        u.id AS tutor_id, u.name AS tutor_name, u.gender AS tutor_gender, u.bio AS tutor_bio,
+        u.avatar_url AS tutor_avatar
     FROM applications app
     JOIN posts p ON app.post_id = p.id
     JOIN users u ON app.tutor_id = u.id
@@ -162,7 +163,14 @@ $applications = $apps_stmt->fetchAll();
     
     <div class="top-actions" style="align-items: center;">
       <span id="topNavWelcome">你好，<?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
-      <div class="avatar" onclick="openModal('profileModal')" title="帳號設定"></div>
+      <?php 
+        $avatar_path = !empty($my_profile['avatar_url']) ? 'uploads/'.$my_profile['avatar_url'] : '';
+        if(isset($_SESSION['user_avatar']) && !empty($_SESSION['user_avatar'])) {
+            $avatar_path = 'uploads/'.$_SESSION['user_avatar'];
+        }
+        $avatar_style = !empty($avatar_path) ? "background-image: url('".$avatar_path."'); background-size: cover; background-position: center;" : "";
+      ?>
+      <div class="avatar" id="navAvatar" onclick="openModal('profileModal')" style="<?php echo $avatar_style; ?>" title="帳號設定"></div>
     </div>
   </header>
 
@@ -263,7 +271,17 @@ $applications = $apps_stmt->fetchAll();
             <article class="tutor-card card" style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
     
               <div style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 10px;">
-                <div class="avatar" style="width: 44px; height: 44px; flex-shrink: 0;"></div>
+                <div class="avatar" style="width: 44px; height: 44px; flex-shrink: 0; 
+                  <?php 
+                    // 關鍵：這裡也必須撈取老師貼文主人的 avatar_url
+                    if (!empty($post['avatar_url'])) {
+                        echo "background-image: url('uploads/" . htmlspecialchars($post['avatar_url']) . "'); background-size: cover; background-position: center;";
+                    } else {
+                        // 如果該老師沒上傳過頭像，顯示系統預設的橘色/奶茶色漸層背景
+                        echo "background: linear-gradient(135deg, #f3d7be, #e6b89c);";
+                    }
+                  ?>">
+                </div>
                 <strong style="font-size: 16px; color: var(--text);"><?php echo htmlspecialchars($post['name']); ?> 老師</strong>
               </div>
 
@@ -280,6 +298,20 @@ $applications = $apps_stmt->fetchAll();
                   <span style="color: var(--muted);">期望時薪：</span>
                   <strong style="color: var(--primary);"><?php echo htmlspecialchars($post['budget']); ?></strong>
                 </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--muted);">性別：</span>
+                  <strong style="color: var(--text);">
+                    <?php 
+                      if ($post['gender'] === 'M') {
+                          echo '男';
+                      } elseif ($post['gender'] === 'F') {
+                          echo '女';
+                      } else {
+                          echo '其他'; 
+                      }
+                    ?>
+                  </strong>
+                </div>
               </div>
 
               <button class="primary" style="width: 100%; margin-top: auto; padding: 8px;" 
@@ -290,6 +322,7 @@ $applications = $apps_stmt->fetchAll();
                         '<?php echo htmlspecialchars($post['region']); ?>', 
                         '<?php echo htmlspecialchars($post['budget']); ?>', 
                         '<?php echo htmlspecialchars($post['content']); ?>', 
+                        '<?php echo htmlspecialchars($post['gender']); ?>',
                         <?php echo $post['user_id']; ?>
                       )">
                 查看詳情
@@ -336,20 +369,36 @@ $applications = $apps_stmt->fetchAll();
   </main>
 
   <div id="profileModal" class="modal">
-    <div class="modal-content" style="max-width: 400px;">
-      <span class="close-btn" onclick="closeModal('profileModal')">&times;</span>
+    <div class="modal-content" style="max-width: 400px; padding: 24px; position: relative;">
+      <span class="close-btn" style="position: absolute; top: 16px; right: 16px;" onclick="closeModal('profileModal')">&times;</span>
       <h2>帳號管理</h2>
-      <div style="margin-top:16px; display:grid; gap:12px;">
-        <div class="field">
-          <label>使用者姓名</label>
-          <input type="text" id="editUserName" value="<?php echo htmlspecialchars($_SESSION['user_name']); ?>" placeholder="請輸入新姓名" />
+      <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 16px;">
+        <div style="text-align: center; background: rgba(91, 70, 54, 0.03); padding: 16px; border-radius: 16px; border: 1px dashed var(--line);">
+          <div id="studentAvatarPreview" class="avatar" style="width: 80px; height: 80px; margin: 0 auto 10px auto; border: 2px solid var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); <?php echo $avatar_style; ?>"></div>
+          <label style="cursor: pointer; background: var(--soft); padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: bold; display: inline-block; color: var(--text);">
+            上傳照片
+            <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="uploadUserAvatar('studentAvatarPreview')" />
+          </label>
         </div>
-        <div class="field"><label>身分</label><input type="text" disabled value="學生 / 家長" /></div>
+
+        <div class="field">
+          <label style="font-weight: bold; font-size: 14px; display: block; margin-bottom: 4px;">姓名</label>
+          <input type="text" id="editUserName" value="<?php echo htmlspecialchars($_SESSION['user_name']); ?>" placeholder="請輸入新姓名" style="width:100%; padding:11px 12px; border-radius:12px; border:1px solid var(--line); background:#fff;" />
+        </div>
         
-        <button type="button" class="primary" onclick="updateName()">儲存</button>
+        <div class="field">
+          <label style="font-weight: bold; font-size: 14px; display: block; margin-bottom: 4px;">身分</label>
+          <input type="text" disabled value="學生 / 家長" style="width:100%; padding:11px 12px; border-radius:12px; border:1px solid var(--line); background: #eee; color: var(--muted);" />
+        </div>
         
-        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line);"></div>
-        <button type="button" style="background: #d9534f; color: #fff; border-color: transparent; font-weight: bold;" onclick="alert('已登出'); location.href='login.php';">登出</button>
+        <button type="button" class="primary" onclick="updateName()" style="width: 100%; padding: 12px; font-weight: bold;">儲存</button>
+        
+        <div style="border-top: 1px dashed var(--line); margin: 4px 0;"></div>
+        <button type="button" style="background: #d9534f; color: #fff; border: none; padding: 12px; font-weight: bold; border-radius: 12px; cursor: pointer; width: 100%;" 
+        onclick="alert('已登出！'); location.href='logout.php';">
+          登出
+        </button>
+        
       </div>
     </div>
   </div>
@@ -409,6 +458,7 @@ $applications = $apps_stmt->fetchAll();
         <div><strong>專長科目：</strong> <span id="detailSubject"></span></div>
         <div><strong>上課地區：</strong> <span id="detailRegion"></span></div>
         <div><strong>期望時薪：</strong> <span id="detailBudget" style="color: var(--primary); font-weight: bold;"></span></div>
+        <div><strong>性別:</strong> <span id="detailGender"></span></div>
       </div>
 
       <div style="font-size: 14px; color: var(--text); margin-bottom: 6px;"><strong>簡介：</strong></div>
@@ -422,54 +472,61 @@ $applications = $apps_stmt->fetchAll();
   </div>
 
   <div id="manageAppsModal" class="modal">
-  <div class="modal-content" style="max-width: 600px;">
-    <span class="close-btn" onclick="closeModal('manageAppsModal')">&times;</span>
-    <h2>應徵清單</h2>
-    <p class="desc" style="margin-bottom:12px;">以下是應徵您家教需求的老師名單：</p>
-    
-    <div style="max-height: 400px; overflow-y: auto; padding-right:5px;">
-      <?php if(empty($applications)): ?>
-        <p style="text-align:center; padding:20px; color:var(--muted);">目前尚未有老師應徵您的案件。</p>
-      <?php else: ?>
-        <?php foreach($applications as $app): ?>
-          <div class="manage-post-item" id="appRow_<?php echo $app['app_id']; ?>" style="flex-direction: column; align-items: stretch; background:#fff;">
-            <div style="display: flex; justify-content: space-between; align-items: start; border-bottom: 1px solid var(--line); padding-bottom: 8px;">
-              <div>
-                <span class="chip" style="background:var(--primary); color:#fff; margin-bottom:4px;">應徵案件</span>
-                <strong style="color:var(--text); display:block;"><?php echo htmlspecialchars($app['post_title']); ?></strong>
+    <div class="modal-content" style="max-width: 600px;">
+      <span class="close-btn" onclick="closeModal('manageAppsModal')">&times;</span>
+      <h2>應徵清單</h2>
+      <p class="desc" style="margin-bottom:12px;">以下是應徵您家教需求的老師名單：</p>
+      
+      <div style="max-height: 400px; overflow-y: auto; padding-right:5px;">
+        <?php if(empty($applications)): ?>
+          <p style="text-align:center; padding:20px; color:var(--muted);">目前尚未有老師應徵您的案件。</p>
+        <?php else: ?>
+          <?php foreach($applications as $app): ?>
+            <div class="manage-post-item" id="appRow_<?php echo $app['app_id']; ?>" style="flex-direction: column; align-items: stretch; background:#fff;">
+              <div style="display: flex; justify-content: space-between; align-items: start; border-bottom: 1px solid var(--line); padding-bottom: 8px;">
+                <div>
+                  <strong style="color:var(--text); display:block;"><?php echo htmlspecialchars($app['post_title']); ?></strong>
+                </div>
+                <!-- 動態顯示目前審核狀態 -->
+                <span class="chip" id="appBadge_<?php echo $app['app_id']; ?>">
+                  <?php 
+                    if($app['status'] == 'pending') echo '待審核';
+                    if($app['status'] == 'accepted') echo '✅ 已錄用';
+                    if($app['status'] == 'rejected') echo '❌ 已拒絕';
+                  ?>
+                </span>
               </div>
-              <!-- 動態顯示目前審核狀態 -->
-              <span class="chip" id="appBadge_<?php echo $app['app_id']; ?>">
-                <?php 
-                  if($app['status'] == 'pending') echo '待審核';
-                  if($app['status'] == 'accepted') echo '✅ 已錄用';
-                  if($app['status'] == 'rejected') echo '❌ 已拒絕';
-                ?>
-              </span>
-            </div>
-            
-            <div style="margin-top: 8px; display: flex; gap: 12px; align-items: center;">
-              <div class="avatar" style="width:40px; height:40px;" onclick="closeModal('manageAppsModal'); openChat(<?php echo $app['tutor_id']; ?>, '<?php echo htmlspecialchars($app['tutor_name']); ?>')"></div>
-              <div style="flex: 1;">
-                <strong style="color:var(--text);"><?php echo htmlspecialchars($app['tutor_name']); ?> 老師 (<?php echo $app['tutor_gender']=='M'?'男':'女'; ?>)</strong>
-                <p style="font-size:12px; color:var(--muted); margin: 2px 0 0 0;"><?php echo htmlspecialchars($app['tutor_bio']); ?></p>
+              
+              <div style="margin-top: 8px; display: flex; gap: 12px; align-items: center;">
+                <div class="avatar" style="width: 48px; height: 48px; flex-shrink: 0; border-radius: 12px;
+                  <?php 
+                    if (!empty($app['tutor_avatar'])) {
+                        echo "background-image: url('uploads/" . htmlspecialchars($app['tutor_avatar']) . "'); background-size: cover; background-position: center;";
+                    } else {
+                        echo "background: linear-gradient(135deg, #f3d7be, #e6b89c);";
+                    }
+                  ?>">
+                </div>
+                <div style="flex: 1;">
+                  <strong style="color:var(--text);"><?php echo htmlspecialchars($app['tutor_name']); ?> 老師 (<?php echo $app['tutor_gender']=='M'?'男':'女'; ?>)</strong>
+                  <p style="font-size:12px; color:var(--muted); margin: 2px 0 0 0;"><?php echo htmlspecialchars($app['tutor_bio']); ?></p>
+                </div>
               </div>
-            </div>
 
-            <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end;" id="appBtnGroup_<?php echo $app['app_id']; ?>">
-              <?php if($app['status'] == 'pending'): ?>
-                <button style="background:#28a745; color:#fff; border:none; padding:6px 12px; font-size:12px;" onclick="handleApplication(<?php echo $app['app_id']; ?>, 'accepted')">錄用</button>
-                <button style="background:#d9534f; color:#fff; border:none; padding:6px 12px; font-size:12px;" onclick="handleApplication(<?php echo $app['app_id']; ?>, 'rejected')">婉拒</button>
-              <?php elseif($app['status'] == 'accepted'): ?>
-                <button style="background:#ffc107; color:#212529; border:none; padding:6px 12px; font-size:12px; font-weight:bold;" onclick="closeModal('manageAppsModal'); openReviewModal(<?php echo $app['app_id']; ?>, <?php echo $app['tutor_id']; ?>)">給予回饋</button>
-              <?php endif; ?>
-              <button style="padding:6px 12px; font-size:12px;" onclick="closeModal('manageAppsModal'); openChat(<?php echo $app['tutor_id']; ?>, '<?php echo htmlspecialchars($app['tutor_name']); ?>')">聊聊</button>
+              <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end;" id="appBtnGroup_<?php echo $app['app_id']; ?>">
+                <?php if($app['status'] == 'pending'): ?>
+                  <button style="background:#28a745; color:#fff; border:none; padding:6px 12px; font-size:12px;" onclick="handleApplication(<?php echo $app['app_id']; ?>, 'accepted')">錄用</button>
+                  <button style="background:#d9534f; color:#fff; border:none; padding:6px 12px; font-size:12px;" onclick="handleApplication(<?php echo $app['app_id']; ?>, 'rejected')">婉拒</button>
+                <?php elseif($app['status'] == 'accepted'): ?>
+                  <button style="background:#ffc107; color:#212529; border:none; padding:6px 12px; font-size:12px; font-weight:bold;" onclick="closeModal('manageAppsModal'); openReviewModal(<?php echo $app['app_id']; ?>, <?php echo $app['tutor_id']; ?>)">給予回饋</button>
+                <?php endif; ?>
+                <button style="padding:6px 12px; font-size:12px;" onclick="closeModal('manageAppsModal'); openChat(<?php echo $app['tutor_id']; ?>, '<?php echo htmlspecialchars($app['tutor_name']); ?>')">聊聊</button>
+              </div>
             </div>
+          <?php endforeach; ?>
+        <?php endif; ?>
           </div>
-        <?php endforeach; ?>
-      <?php endif; ?>
-        </div>
-    </div>
+      </div>
     </div>
 
   <div id="chatModal" class="modal">
@@ -518,7 +575,7 @@ $applications = $apps_stmt->fetchAll();
         .then(res => res.json())
         .then(data => {
             if(data.status === 'success') {
-                alert('您的姓名已成功變更！');
+                alert('變更成功！');
                 document.getElementById('topNavWelcome').innerText = '你好，' + data.name;
                 closeModal('profileModal');
             } else {
@@ -546,12 +603,19 @@ $applications = $apps_stmt->fetchAll();
         });
     }
 
-    function openDetail(id, title, subject, region, budget, content, userId) {
+    function openDetail(id, title, subject, region, budget, content, gender, userId) {
       document.getElementById('detailTitle').innerText = title;
       document.getElementById('detailSubject').innerText = subject;
       document.getElementById('detailRegion').innerText = region;
       document.getElementById('detailBudget').innerText = budget;
       document.getElementById('detailContent').innerText = content;
+      if (gender === 'M') {
+          document.getElementById('detailGender').innerText = '男';
+      } else if (gender === 'F') {
+          document.getElementById('detailGender').innerText = '女';
+      }else{
+        document.getElementById('detailGender').innerText = '其他';
+      }
       document.getElementById('detailTutorId').value = userId; 
       
       document.getElementById('contactBtn').onclick = function() {
@@ -769,6 +833,44 @@ $applications = $apps_stmt->fetchAll();
                 `;
             });
         });
+    }
+    function uploadUserAvatar(previewElementId) {
+      const fileInput = document.getElementById('avatarFileInput');
+      if (!fileInput.files || fileInput.files.length === 0) return;
+
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      fetch('api/upload_avatar.php', {
+          method: 'POST',
+          body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+          if (data.status === 'success') {
+              alert(data.message);
+            
+              const previewBox = document.getElementById(previewElementId);
+              if (previewBox) {
+                  previewBox.style.backgroundImage = `url('${data.avatar_url}')`;
+                  previewBox.style.backgroundSize = 'cover';
+                  previewBox.style.backgroundPosition = 'center';
+              }
+              const navBox = document.getElementById('navAvatar');
+              if (navBox) {
+                  navBox.style.backgroundImage = `url('${data.avatar_url}')`;
+                  navBox.style.backgroundSize = 'cover';
+                  navBox.style.backgroundPosition = 'center';
+              }
+          } else {
+              alert(data.message || '頭像上傳失敗，請重試。');
+          }
+      })
+      .catch(err => {
+          console.error(err);
+          alert('上傳發生連線錯誤！');
+      });
     }
   </script>
 </body>
