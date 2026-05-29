@@ -57,11 +57,11 @@
   <div class="welcome-container">
     <div class="brand-logo">Tutor Match</div>
     <h1>家教媒合平台</h1>
-    <p class="subtitle">副標題副標題副標題副標題副標題副標題副標題副標題副標題副標題</p>
+    <p class="subtitle">學你想學，教你想教，找家教就該這麼簡單</p>
 
     <div class="cta-actions">
-      <a href="login.php" class="btn btn-login">會員登入</a>
-      <a href="register.php" class="btn btn-register">立即註冊</a>
+      <a href="login.php" class="btn btn-login">登入</a>
+      <a href="register.php" class="btn btn-register">註冊</a>
     </div>
   </div>
 

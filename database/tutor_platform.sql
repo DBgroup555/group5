@@ -34,17 +34,6 @@ CREATE TABLE `messages` (
   FOREIGN KEY (`receiver_id`) REFERENCES `users`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `reviews` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `tutor_id` INT NOT NULL,
-  `student_id` INT NOT NULL,
-  `rating` INT NOT NULL CHECK (`rating` BETWEEN 1 AND 5),
-  `comment` TEXT DEFAULT NULL,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`tutor_id`) REFERENCES `users`(`id`),
-  FOREIGN KEY (`student_id`) REFERENCES `users`(`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 CREATE TABLE `applications` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `post_id` INT NOT NULL,
@@ -54,3 +43,14 @@ CREATE TABLE `applications` (
   FOREIGN KEY (`post_id`) REFERENCES `posts`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`tutor_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    application_id INT NOT NULL,     
+    student_id INT NOT NULL,         
+    tutor_id INT NOT NULL,           
+    comment TEXT NOT NULL,            
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES users(id),
+    FOREIGN KEY (tutor_id) REFERENCES users(id)
+);

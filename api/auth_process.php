@@ -54,7 +54,7 @@ if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($email === 'admin@tutor.com' && $password === 'admin1234') {
         $_SESSION['user_id'] = 999; 
-        $_SESSION['user_name'] = '超級管理員';
+        $_SESSION['user_name'] = '管理員';
         $_SESSION['user_role'] = 'admin';
         
         echo "<script>alert('管理員登入成功！'); location.href='../admin.php';</script>";
