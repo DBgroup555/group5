@@ -1,0 +1,265 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- 主機： 127.0.0.1
+-- 產生時間： 2026-05-29 17:40:31
+-- 伺服器版本： 10.4.32-MariaDB
+-- PHP 版本： 8.2.12
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- 資料庫： `tutor_platform`
+--
+
+-- --------------------------------------------------------
+
+--
+-- 資料表結構 `applications`
+--
+
+CREATE TABLE `applications` (
+  `id` int(11) NOT NULL,
+  `post_id` int(11) NOT NULL,
+  `tutor_id` int(11) NOT NULL,
+  `status` enum('pending','accepted','rejected') DEFAULT 'pending',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- 傾印資料表的資料 `applications`
+--
+
+INSERT INTO `applications` (`id`, `post_id`, `tutor_id`, `status`, `created_at`) VALUES
+(2, 2, 3, 'rejected', '2026-05-28 16:30:21'),
+(3, 2, 5, 'accepted', '2026-05-29 04:40:37'),
+(5, 6, 5, 'rejected', '2026-05-29 07:27:04'),
+(6, 6, 3, 'rejected', '2026-05-29 07:40:44');
+
+-- --------------------------------------------------------
+
+--
+-- 資料表結構 `messages`
+--
+
+CREATE TABLE `messages` (
+  `id` int(11) NOT NULL,
+  `sender_id` int(11) NOT NULL,
+  `receiver_id` int(11) NOT NULL,
+  `message` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- 傾印資料表的資料 `messages`
+--
+
+INSERT INTO `messages` (`id`, `sender_id`, `receiver_id`, `message`, `created_at`) VALUES
+(1, 5, 1, '哈囉', '2026-05-29 05:07:24'),
+(2, 5, 1, '哈囉~', '2026-05-29 05:08:18'),
+(3, 5, 1, '哈囉', '2026-05-29 05:12:07'),
+(4, 1, 5, '哈囉!!', '2026-05-29 05:12:34'),
+(5, 1, 3, '你好', '2026-05-29 05:57:49'),
+(6, 6, 5, '嗨嗨', '2026-05-29 07:14:35'),
+(18, 1, 3, '哈囉', '2026-05-29 10:25:59');
+
+-- --------------------------------------------------------
+
+--
+-- 資料表結構 `posts`
+--
+
+CREATE TABLE `posts` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `subject` varchar(50) NOT NULL,
+  `region` varchar(50) NOT NULL,
+  `budget` varchar(50) NOT NULL,
+  `content` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- 傾印資料表的資料 `posts`
+--
+
+INSERT INTO `posts` (`id`, `user_id`, `title`, `subject`, `region`, `budget`, `content`, `created_at`) VALUES
+(2, 1, '尋找大二數學老師', '數學', '台北市', '500', '123456789', '2026-05-28 15:42:50'),
+(3, 5, '大家好，我是 333 老師，歡迎找我接案！', '數學', '高雄市', '700', '讚讚', '2026-05-28 16:47:02'),
+(6, 6, '會考英文', '數學', '台南市', '800', '哈哈\r\n', '2026-05-29 07:15:14');
+
+-- --------------------------------------------------------
+
+--
+-- 資料表結構 `reviews`
+--
+
+CREATE TABLE `reviews` (
+  `id` int(11) NOT NULL,
+  `application_id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
+  `tutor_id` int(11) NOT NULL,
+  `comment` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- 傾印資料表的資料 `reviews`
+--
+
+INSERT INTO `reviews` (`id`, `application_id`, `student_id`, `tutor_id`, `comment`, `created_at`) VALUES
+(1, 4, 1, 5, '真棒', '2026-05-29 05:51:09');
+
+-- --------------------------------------------------------
+
+--
+-- 資料表結構 `users`
+--
+
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `role` enum('student','tutor','admin') NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `gender` enum('M','F','Other') DEFAULT NULL,
+  `avatar_url` varchar(255) DEFAULT NULL,
+  `bio` text DEFAULT NULL,
+  `reset_token` varchar(255) DEFAULT NULL,
+  `reset_expires_at` datetime DEFAULT NULL,
+  `status` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- 傾印資料表的資料 `users`
+--
+
+INSERT INTO `users` (`id`, `email`, `password`, `name`, `role`, `phone`, `gender`, `avatar_url`, `bio`, `reset_token`, `reset_expires_at`, `status`, `created_at`) VALUES
+(1, '111@111.com', '$2y$10$KfBaBWX5J6T.Z8AJYRIyM.OkrZSd7WQus2AEKBMwt75MrYJyYEm1S', '111', 'student', '0900000000', 'M', 'avatar_1_1780046937.jpg', '', NULL, NULL, 1, '2026-05-27 14:38:34'),
+(3, '222@222.com', '$2y$10$2MGdlSbd8/iRqpRnu1uyJuG7m6GEmFugpebUwNoyC1UF7QDldePz.', '222', 'tutor', '0900000000', 'F', NULL, '就讀中教大', NULL, NULL, 0, '2026-05-27 14:40:29'),
+(5, '333@333.com', '$2y$10$e6.LiRV29PrjdWs7gb.Kg.pn7z4k9pRwedD5LNjSe1llYKBA/yjLK', '333', 'tutor', '0900000000', 'M', 'avatar_5_1780044171.jpg', '讚讚', NULL, NULL, 1, '2026-05-28 16:47:02'),
+(6, 'sss@ss', '$2y$10$UQJqC0zRY5N88.ERPvGIu.hBCyOoJVC3WaLfVn8SqQmPquEu8.1PW', 'sss', 'student', '0900000000', 'F', 'avatar_6_1780046921.jpg', '', NULL, NULL, 1, '2026-05-29 07:13:55');
+
+--
+-- 已傾印資料表的索引
+--
+
+--
+-- 資料表索引 `applications`
+--
+ALTER TABLE `applications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `post_id` (`post_id`),
+  ADD KEY `tutor_id` (`tutor_id`);
+
+--
+-- 資料表索引 `messages`
+--
+ALTER TABLE `messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `sender_id` (`sender_id`),
+  ADD KEY `receiver_id` (`receiver_id`);
+
+--
+-- 資料表索引 `posts`
+--
+ALTER TABLE `posts`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- 資料表索引 `reviews`
+--
+ALTER TABLE `reviews`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `student_id` (`student_id`),
+  ADD KEY `tutor_id` (`tutor_id`);
+
+--
+-- 資料表索引 `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- 在傾印的資料表使用自動遞增(AUTO_INCREMENT)
+--
+
+--
+-- 使用資料表自動遞增(AUTO_INCREMENT) `applications`
+--
+ALTER TABLE `applications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- 使用資料表自動遞增(AUTO_INCREMENT) `messages`
+--
+ALTER TABLE `messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+
+--
+-- 使用資料表自動遞增(AUTO_INCREMENT) `posts`
+--
+ALTER TABLE `posts`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- 使用資料表自動遞增(AUTO_INCREMENT) `reviews`
+--
+ALTER TABLE `reviews`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- 使用資料表自動遞增(AUTO_INCREMENT) `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- 已傾印資料表的限制式
+--
+
+--
+-- 資料表的限制式 `applications`
+--
+ALTER TABLE `applications`
+  ADD CONSTRAINT `applications_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `applications_ibfk_2` FOREIGN KEY (`tutor_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- 資料表的限制式 `messages`
+--
+ALTER TABLE `messages`
+  ADD CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`sender_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`receiver_id`) REFERENCES `users` (`id`);
+
+--
+-- 資料表的限制式 `posts`
+--
+ALTER TABLE `posts`
+  ADD CONSTRAINT `posts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- 資料表的限制式 `reviews`
+--
+ALTER TABLE `reviews`
+  ADD CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `reviews_ibfk_2` FOREIGN KEY (`tutor_id`) REFERENCES `users` (`id`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
