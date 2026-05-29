@@ -14,7 +14,7 @@
     input, select, textarea{width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:12px; background:#fff; font:inherit}
     button{width:100%; background:var(--primary); color:#fff; border:none; padding:12px; border-radius:12px; font-weight:bold; cursor:pointer; font-size:16px; margin-top:10px}
     button:hover{opacity:0.9}
-    .tutor-only{display:none;} /* 預設隱藏老師專用畫面 */
+    .tutor-only{display:none;} 
     .switch-link{text-align:center; margin-top:16px; font-size:14px; color:#8b6f58}
     .switch-link a{color:var(--primary); text-decoration:none; font-weight:bold}
   </style>
@@ -67,7 +67,6 @@
         <textarea name="bio" rows="4" placeholder="請填寫您的學經歷、擅長科目、教學理念等，這會公開在您的師資履歷上。"></textarea>
       </div>
 
-      <!-- 機器人驗證 -->
       <div class="field" style="display: grid; gap: 6px; font-size: 14px; margin-bottom: 12px;">
         <label>驗證碼</label>
         
@@ -100,10 +99,10 @@
         const tutorFields = document.getElementById('tutorFields');
         
         if (role === 'tutor') {
-            tutorFields.style.display = 'grid'; // 顯示老師專有欄位
+            tutorFields.style.display = 'grid'; 
             tutorFields.querySelector('textarea').required = true;
         } else {
-            tutorFields.style.display = 'none'; // 隱藏
+            tutorFields.style.display = 'none'; 
             tutorFields.querySelector('textarea').required = false;
         }
     }

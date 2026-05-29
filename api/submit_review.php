@@ -8,7 +8,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
     $student_id = $_SESSION['user_id'];
 
     if ($app_id > 0 && $tutor_id > 0 && !empty($comment)) {
-        // 檢查是否已經評價過
         $check = $pdo->prepare("SELECT id FROM reviews WHERE application_id = ?");
         $check->execute([$app_id]);
         if ($check->fetch()) {

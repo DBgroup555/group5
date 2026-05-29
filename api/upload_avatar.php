@@ -27,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
         $dest_path = $upload_dir . $new_file_name;
 
         if (move_uploaded_file($file_tmp, $dest_path)) {
-            // 更新 users 資料表
             $stmt = $pdo->prepare("UPDATE users SET avatar_url = ? WHERE id = ?");
             if ($stmt->execute([$new_file_name, $user_id])) {
             

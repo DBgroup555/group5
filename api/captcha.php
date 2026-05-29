@@ -1,5 +1,5 @@
 <?php
-// 確保啟動 Session
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -19,7 +19,7 @@ header('Cache-Control: no-cache, must-revalidate');
 
 $image = imagecreatetruecolor(120, 40);
 
-// 4. 設定顏色
+
 $bg_color = imagecolorallocate($image, 250, 245, 240);
 $text_color = imagecolorallocate($image, 91, 70, 54);  
 $noise_color = imagecolorallocate($image, 220, 210, 200);
@@ -38,7 +38,6 @@ for ($i = 0; $i < strlen($captcha_code); $i++) {
     imagechar($image, 5, $x, $y, $captcha_code[$i], $text_color);
 }
 
-// 7. 輸出圖片並釋放
 imagepng($image);
 imagedestroy($image);
 exit;

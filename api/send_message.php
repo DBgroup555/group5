@@ -5,7 +5,6 @@ if (session_status() === PHP_SESSION_NONE) {
 header('Content-Type: application/json; charset=utf-8');
 require_once '../config/db.php';
 
-// 登入與欄位檢查
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['status' => 'error', 'message' => '尚未登入']); exit;
 }
@@ -17,7 +16,7 @@ if (empty($message) || empty($receiver_id)) {
     echo json_encode(['status' => 'error', 'message' => '欄位不可為空']); exit;
 }
 
-$apiKey = "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";
+$apiKey = "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"; //6/28到期
 
 $url = "https://api.groq.com/openai/v1/chat/completions";
 

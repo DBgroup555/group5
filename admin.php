@@ -37,12 +37,10 @@ $filtered_posts = $posts_stmt->fetchAll();
     .layout{display:grid;grid-template-columns:1fr;gap:24px;padding:24px;max-width:1200px;margin:0 auto;}
     .card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 10px 30px rgba(90,60,30,.06);padding:20px;}
     
-    /* 表格樣式 */
     table{width:100%;border-collapse:collapse;margin-top:12px;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
     th,td{padding:14px;text-align:left;border-bottom:1px solid var(--line)}
     th{background:var(--soft);color:var(--text);font-weight:bold}
-    
-    /* 切換標籤樣式 */
+ 
     .tab-container{display:flex;gap:10px;margin-bottom:16px;border-bottom:2px solid var(--line);padding-bottom:10px;}
     .tab-btn{padding:10px 20px;border-radius:10px;border:1px solid var(--line);background:#fff;font-weight:bold;cursor:pointer;}
     .tab-btn.active{background:var(--primary);color:#fff;border-color:transparent;}
@@ -198,8 +196,7 @@ $filtered_posts = $posts_stmt->fetchAll();
         .then(data => {
             if(data.status === 'success') {
                 alert('帳號權限狀態已成功變更！');
-                
-                // 即時刷新變更畫面的狀態文字與按鈕顏色，完全不用重整網頁
+
                 const textTd = document.getElementById('statusText_' + userId);
                 const actionBtn = document.getElementById('statusBtn_' + userId);
                 
