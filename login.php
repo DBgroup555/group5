@@ -30,14 +30,17 @@
       </div>
 
       <div class="field">
-        <label>密碼</label>
-        <input type="password" name="password" required placeholder="請輸入密碼">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <label style="margin: 0;">密碼</label>
+        <a href="forgot_password.php" style="color: var(--primary); font-size: 13px;">忘記密碼嗎？</a>
       </div>
+  <input type="password" name="password" required placeholder="請輸入密碼" style="margin-top: 6px;">
+</div>
 
       <button type="submit">登入</button>
 
       <!-- <div class="admin-hint">
-        🔒 <strong>管理員測試入口：</strong><br>
+        <strong>管理員測試帳密：</strong><br>
         帳號：<code>admin@tutor.com</code><br>
         密碼：<code>admin1234</code>
       </div> -->

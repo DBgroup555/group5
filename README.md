@@ -8,5 +8,5 @@
 
 ## 除錯
 
-1. 如果驗證碼沒顯示出來 <br>
+1. 如果驗證碼沒顯示出來: <br>
 開啟 XAMPP Control Panel -> 點擊 Apache 旁的 config -> 選擇 PHP(php.ini) -> 將 ;extension=gd 這行的分號刪掉 -> 存檔 -> 重啟  Apache
