@@ -14,10 +14,10 @@ if ($action === 'register' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($user_captcha) || $user_captcha !== $correct_captcha) {
         unset($_SESSION['captcha_auth']);
-        echo json_encode(['status' => 'error', 'message' => '驗證碼輸入錯誤或已過期，請重新輸入！']);
+        echo json_encode(['status' => 'error', 'message' => '驗證碼輸入錯誤...']);
         exit;
     }
-    unset($_SESSION['captcha_auth']);
+    unset($_SESSION['captcha_auth']); 
 
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
