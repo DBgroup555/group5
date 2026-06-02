@@ -21,7 +21,7 @@ function sendWelcomeEmail($toEmail, $toName, $subject, $bodyHtml) {
         $mail->Host       = 'smtp.gmail.com';                        // SMTP 伺服器
         $mail->SMTPAuth   = true;                                    // 開啟 SMTP 驗證
         $mail->Username   = 'acs113129@gm.ntcu.edu.tw';                  // 你的 Gmail 信箱
-        $mail->Password   = 'dcqf quhs modt ioqp';                // 你的 Gmail「應用程式密碼」(非登入密碼)
+        $mail->Password   = getenv('GMAIL_PASSWORD');                // 你的 Gmail「應用程式密碼」(非登入密碼)
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;          // 加密方式
         $mail->Port       = 587;                                     // 連接埠
         $mail->CharSet    = 'UTF-8';                                 // 防亂碼

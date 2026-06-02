@@ -16,8 +16,7 @@ if (empty($message) || empty($receiver_id)) {
     echo json_encode(['status' => 'error', 'message' => '欄位不可為空']); exit;
 }
 
-$apiKey = "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"; //6/28到期
-
+$apiKey = getenv('API_KEY');
 $url = "https://api.groq.com/openai/v1/chat/completions";
 
 $prompt = "

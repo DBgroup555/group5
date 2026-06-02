@@ -1,3 +1,9 @@
+## 平台
+
+管理員預設帳密:
+帳-admin@tutor.com
+密-admin1234
+
 ## 開發
 
 1. 開啟 XAMPP Control Panel
@@ -8,5 +14,8 @@
 
 ## 除錯
 
-1. 如果驗證碼沒顯示出來: <br>
+1. 請先自行在根目錄建立 .env 檔案，將 .env.example 內容複製過去並更改 <br>
+
+2. 如果驗證碼沒顯示出來: <br>
 開啟 XAMPP Control Panel -> 點擊 Apache 旁的 config -> 選擇 PHP(php.ini) -> 將 ;extension=gd 這行的分號刪掉 -> 存檔 -> 重啟  Apache
+

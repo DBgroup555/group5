@@ -7,6 +7,7 @@ Thumbs.db
 .idea/
 *.suo
 *.swp
+.env
 
 /uploads/*
 !/uploads/.gitkeep
